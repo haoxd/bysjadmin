@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hxd.dao.adminMapper">
+<!-- 添加二级缓存，以减少数据库的访问量 -->
+<!-- 
+eviction="FIFO"  //回收策略为先进先出
+flushInterval="60000" //自动刷新时间60s
+size="512" //最多缓存512个引用对象
+readOnly="true"/> //只读
+ -->
+ <!-- 1. 映射语句文件中的所有select语句将会被缓存。 
+2. 映射语句文件中的所有insert，update和delete语句会刷新缓存。 
+3. 缓存会使用Least Recently Used（LRU，最近最少使用的）算法来收回。 
+4. 缓存会根据指定的时间间隔来刷新。 
+5. 缓存会存储1024个对象 -->
+<cache 
+size="512" 
+readOnly="true"
+flushInterval="60000"
+eviction="FIFO"
+>
+</cache>
+
+<!--登录系统  -->
+<select id="queryAdminLoginSystem" resultType="Admin">
+ <!-- select * from admin where adminPhone=#{phone} and adminPassword=#{password}  -->
+
+
+select * from admin where
+<if test="phone != null">
+adminPhone=#{phone} and
+</if>
+<if test="password != null">
+adminPassword=#{password} and
+</if> 
+adminState='YES'
+</select>
+
+<!--查询个人信息  -->
+<select id="queryAdminInfo" resultType="Admin">
+select * from admin where adminID=#{adminid}  and adminPassword=MD5(#{ordpwd})
+
+</select>
+
+<!--查询个人信息  -->
+<select id="queryAdminInfoBYid" resultType="Admin">
+select * from admin where adminID=#{adminid}  
+</select>
+<!--查询个人信息  -->
+<select id="queryAdminInfoByPhone" resultType="Admin">
+select * from admin where adminPhone=#{phone} 
+
+</select>
+<!-- 查询全部用户信息 -->
+<select id="queryUserInfos" parameterType="int" resultType="User">
+SELECT * FROM user  ORDER BY userCreateTime DESC LIMIT #{fromNo},5
+
+
+</select>
+
+<select id="queryUserInfoToEccel"  resultType="User">
+SELECT * FROM user  ORDER BY userCreateTime DESC 
+
+
+</select>
+<!--查询用户总数  -->
+  <select id="getUserNumber" resultType="int" >
+select count(*) from user  
+  
+  </select>
+ 
+ <!-- 用户权限 -->
+ <update id="IsUpdateUserLoginSystemToNo" parameterType="int">
+ update user set 
+       userState='不正常'        
+    where userID=#{userID}
+ </update>
+ 
+ 
+ <update id="isUpdateUserLoginSystemToYes"  parameterType="int">
+
+update user set 
+       userState='正常'        
+    where userID=#{userID}
+ 
+ </update>
+ 
+ 
+ 
+  
+ <!--查询全部投资信息  -->
+ <select id="queryInvestmentInfo" parameterType="int" resultType="Investment">
+ 
+ SELECT * FROM investment ORDER BY investmentCreateTime DESC LIMIT #{fromNo},5
+ </select>
+ 
+ 
+ <select id="queryInvestmentInfoEccel"  resultType="Investment">
+ 
+ SELECT * FROM investment ORDER BY investmentCreateTime DESC 
+ </select>
+ <!-- 查询投资的总数 -->
+ <select id="getInvestmentNumber" resultType="int">
+ select count(*) from investment
+ 
+ </select>
+ <!-- 获取用户投资总数 -->
+ <select id="getUserInvestmrntsNumer" resultType="int" parameterType="int">
+SELECT COUNT(*) FROM userinvestment WHERE iid=#{iid}; 
+ 
+ 
+ </select>
+ <!-- 删除投资信心 -->
+ <delete id="deleateInvestmenrt" parameterType="int" >
+   DELETE  FROM 
+  investment
+   WHERE investmentID = #{iid}
+  
+ 
+ 
+ </delete>
+ <select id="queryInvestmen" parameterType="int" resultType="Investment">
+ 
+ select * from Investment where investmentID = #{iid}
+ </select>
+ 
+ <update id="updateInvestment"  parameterType="Investment">
+
+	
+ update Investment set 
+       investmentName=#{investmentName} ,
+        weekEarnings=#{weekEarnings},
+        investmentBody=#{investmentBody},
+    monthEarnings=#{monthEarnings},
+    yearEarnings=#{yearEarnings},
+        investmentState=#{investmentState},
+        investmentCreateTime=#{investmentCreateTime}
+    where investmentId=#{investmentId}
+ 
+ 
+ </update>
+ <insert id="addInvestment"  parameterType="Investment" >
+ insert into Investment 
+    (investmentName,investmentBody,weekEarnings,monthEarnings,yearEarnings,investmentState,investmentCreateTime)
+     values 
+    (
+    #{investmentName},
+    #{investmentBody},
+    #{weekEarnings},
+    #{monthEarnings},
+    #{yearEarnings},
+    #{investmentState},
+    #{investmentCreateTime}
+    ) 
+ 
+ </insert>
+ <!-- 查询全部意见反馈信息 -->
+ <select id="queryUserMessageBackinfos" parameterType="int" resultType="UserMessageBack"> 
+ SELECT * FROM usermessageback ORDER BY userMessageTime DESC LIMIT #{fromNo} ,5
+ 
+ </select>
+ 
+ 
+ <select id="queryUserMessageBackinfosEccel"  resultType="UserMessageBack"> 
+ SELECT * FROM usermessageback ORDER BY userMessageTime DESC 
+ 
+ </select>
+ 
+ 
+ 
+  <select id="queryUserMessageBackinfosToHao" parameterType="int" resultType="UserMessageBack"> 
+ SELECT * FROM usermessageback where userMessageIdear ='好评'
+  ORDER BY userMessageTime DESC LIMIT #{fromNo} ,5
+ 
+ </select>
+  <select id="queryUserMessageBackinfosToCha" parameterType="int" resultType="UserMessageBack"> 
+ SELECT * FROM usermessageback where userMessageIdear ='差评' 
+ ORDER BY userMessageTime DESC LIMIT #{fromNo} ,5
+ 
+ </select>
+  <select id="queryUserMessageBackinfosToYiBan" parameterType="int" resultType="UserMessageBack"> 
+ SELECT * FROM usermessageback where userMessageIdear ='一般'
+ ORDER BY userMessageTime DESC LIMIT #{fromNo} ,5
+ 
+ </select>
+ 
+ 
+ 
+ 
+ <select id="getUserMessageBackNumber" resultType="int">
+ SELECT count(*) FROM usermessageback
+ </select>
+ 
+ 
+ 
+ <select id="getgetUserMessageBackNumbertoHao" resultType="int">
+ SELECT count(*) FROM usermessageback where userMessageIdear ='好评'
+ </select>
+ <select id="getgetUserMessageBackNumbertoYiBan" resultType="int">
+ SELECT count(*) FROM usermessageback where userMessageIdear ='一般'
+ </select>
+ <select id="getgetUserMessageBackNumbertoCha" resultType="int">
+ SELECT count(*) FROM usermessageback where userMessageIdear ='差评'
+ </select>
+ 
+ 
+ 
+ 
+  <!-- 删除反馈意见 -->
+ <delete id="deleateUserMessageBack" parameterType="int" >
+   DELETE  FROM 
+  usermessageback
+   WHERE userMessageBackId = #{umid}
+  
+ </delete>
+ 
+ <!--  获取总数-->
+  <select id="getUserToNanNumber" resultType="int">
+ SELECT count(*) FROM user where userSex= '男'
+ </select>
+   <select id="getUserToNvNumber" resultType="int">
+ SELECT count(*) FROM user where userSex= '女'
+ </select>
+   <select id="getMonthUserRegNumber" resultType="int">
+ SELECT count(*) FROM user  where
+DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= DATE(userCreateTime)
+ </select>
+   <select id="getWeekUserRegNumber" resultType="int">
+ SELECT count(*) FROM user
+ WHERE 
+ DATE_SUB(CURDATE(), INTERVAL 7 DAY)  &lt;= DATE(userCreateTime)
+ </select>
+ 
+ 
+ <!-- 理财统计 -->
+ <select id="queryUserInfoToInvestment" parameterType="java.lang.String" resultType="User">
+ 
+SELECT * FROM USER
+ WHERE userID 
+ IN(SELECT uid FROM userinvestment WHERE iid IN( SELECT	investmentId FROM investment WHERE investmentName='${investmentName}' ))
+ LIMIT ${fromNo},5
+ 
+ </select>
+ 
+  <select id="getqueryUserInfoToInvestmentNumber" parameterType="java.lang.String" resultType="int">
+ 
+SELECT count(*) FROM USER
+ WHERE userID 
+ IN(SELECT uid FROM userinvestment WHERE iid IN( SELECT	investmentId FROM investment WHERE investmentName=#{investmentName} ))
+ 
+ </select>
+ 
+    
+     <update id="updateAdminPassowrd"  parameterType="Admin">
+    
+     update admin set 
+    adminPassword=#{adminPassword} 
+    where adminID=#{adminID}  
+    </update>
+    
+    
+     <update id="updateAdminInfo"  parameterType="Admin">
+    
+     update admin set 
+    adminName=#{adminName},
+    adminPhone=#{adminPhone},
+    adminChangeTime=#{adminChangeTime},
+    adminText=#{adminText}
+    where adminID=#{adminID}  
+    </update>
+    
+    <!--添加管理员  -->
+    <insert id="addAdmin"  parameterType="Admin" >
+ insert into admin 
+    (adminPhone,adminName,adminPassword,adminText,adminCreateTime,adminChangeTime,adminState)
+     values 
+    (
+    #{adminPhone},
+    #{adminName},
+    #{adminPassword},
+    #{adminText},
+    #{adminCreateTime},
+    #{adminChangeTime},
+    #{adminState}
+    ) 
+ </insert>
+ 
+ <select id="queryAdminInfos" parameterType="int" resultType="Admin">
+ select * from  admin 
+ ORDER BY adminID ASC LIMIT #{fromNo} ,5
+ 
+ </select>
+ 
+ <select id="getAdminNumber" resultType="int">
+ 
+ select count(*) from  admin 
+ </select>
+ 
+ <!--管理员权限  -->
+  <update id="isUpdateAdminState" >
+ update admin set 
+       adminState=#{adminState}       
+    where adminID=#{adminid}
+ </update>
+ 
+ 
+</mapper>

@@ -1,0 +1,2 @@
+//投资末一个理财产品的全部用户
+SELECT * FROM USER WHERE userID IN(SELECT uid FROM userinvestment WHERE iid IN( SELECT	investmentId FROM investment WHERE investmentName='如意理财' ))

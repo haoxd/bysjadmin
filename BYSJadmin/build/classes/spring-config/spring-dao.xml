@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:cache="http://www.springframework.org/schema/cache" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+ 
+	<!-- 加载db配置文件 -->
+	<context:property-placeholder location="classpath:db-config/db.properties" />
+	
+	<!-- 自动扫描(自动注入) -->
+    <context:component-scan base-package="com.hxd.service"/>  
+ 
+ 
+	<!-- 引入安全框架shiro -->
+	
+   <!--  <import resource="classpath:shro/spring-shiro.xml"/>  -->
+	    
+ 
+	
+
+	<!-- 获取数据源 -->
+	<!-- DruidDataSource经过阿里巴巴数百个应用一年多生产环境运行验证，稳定可靠。  -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		  destroy-method="close">		
+        <property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!-- 定义sessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	<property name="typeAliasesPackage" value="com.hxd.model"></property> 
+		<property name="mapperLocations" value="classpath:com/hxd/dao/*.xml" />
+	</bean>
+	<!-- mybaits 自动扫描加载spl映射文件 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.hxd.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+	<!--申明事物管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 申明事物，开启事务注解 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	
+</beans>
